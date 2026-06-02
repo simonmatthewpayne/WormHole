@@ -37,6 +37,7 @@ cam_pitch = 0.0
 cam_roll = 0.0
 cam_offset = 0.0
 cam_l = 5.0
+sky_mode = 0
 
 last_x, last_y = WIDTH / 2, HEIGHT / 2
 first_mouse = True
@@ -57,7 +58,7 @@ def mouse_cb(win, x, y):
     cam_pitch = max(-1.5, min(1.5, cam_pitch))
 
 def key_cb(win, key, sc, action, mods):
-    global cam_l, cam_offset, cam_roll
+    global cam_l, cam_offset, cam_roll, cam_yaw, cam_pitch, sky_mode
 
     if action in (glfw.PRESS, glfw.REPEAT):
         if key == glfw.KEY_W:
@@ -76,6 +77,12 @@ def key_cb(win, key, sc, action, mods):
             cam_l = 5.0
             cam_offset = 0.0
             cam_yaw = cam_pitch = cam_roll = 0.0
+        if key == glfw.KEY_1:
+            sky_mode = 0
+        if key == glfw.KEY_2:
+            sky_mode = 1
+        if key == glfw.KEY_3:
+            sky_mode = 2
         if key == glfw.KEY_ESCAPE:
             glfw.set_window_should_close(win, True)
 
@@ -94,7 +101,7 @@ quad_vbo = ctx.buffer(np.array([
     -1, -1,  1,  1, -1,  1
 ], dtype='f4'))
 
-with open("wormhole.frag", "r", encoding="utf-8") as f:
+with open("shaders/wormhole.frag", "r", encoding="utf-8") as f:
     frag_src = f.read()
 
 prog = ctx.program(
@@ -161,6 +168,7 @@ while not glfw.window_should_close(window):
     prog["iCamRoll"].value = cam_roll
     prog["iCamOffset"].value = cam_offset
     prog["iCamL"].value = cam_l
+    prog["skyMode"].value = sky_mode
 
     ctx.clear(0.0, 0.0, 0.0)
     vao.render()
